@@ -2,7 +2,8 @@
 //
 //	Truth table generator
 //
-//	Copyright (C) 2011 Bastien Clément
+//	Original Copyright (C) 2011 Bastien Clément
+//	Ported to LaTeX by Frederic Jacobs and distributed with the same license.
 //
 //	Permission is hereby granted, free of charge, to any person obtaining
 //	a copy of this software and associated documentation files (the
@@ -145,7 +146,7 @@ var api = {
 		q = api.toLogicalElement(q);
 
 		return new api.LogicalElement(
-			p.l+" "+(join ? "," : "∧")+" "+q.l,
+			p.l+" "+(join ? "," : "\\wedge")+" "+q.l,
 			p.v && q.v,
 			false,
 			join
@@ -161,7 +162,7 @@ var api = {
 		q = api.toLogicalElement(q);
 
 		return new api.LogicalElement(
-			p.l+" ∨ "+q.l,
+			p.l+" \\lor "+q.l,
 			p.v || q.v
 		);
 	},
@@ -171,7 +172,7 @@ var api = {
 		q = api.toLogicalElement(q);
 
 		return new api.LogicalElement(
-			p.l+" ⊕ "+q.l,
+			p.l+" \\oplus "+q.l,
 			(p.v || q.v) && !(p.v && q.v)
 		);
 	},
@@ -181,7 +182,7 @@ var api = {
 		q = api.toLogicalElement(q);
 
 		return new api.LogicalElement(
-			p.l+" → "+q.l,
+			p.l+" \\to "+q.l,
 			!p.v || (p.v && q.v)
 		);
 	},
@@ -191,7 +192,7 @@ var api = {
 		q = api.toLogicalElement(q);
 
 		return new api.LogicalElement(
-			p.l+" ≡ "+q.l,
+			p.l+" \\leftrightarrow "+q.l,
 			!(p.v || q.v) || (p.v && q.v)
 		);
 	},
@@ -200,7 +201,7 @@ var api = {
 		p = api.toLogicalElement(p);
 
 		return new api.LogicalElement(
-			"¬"+p.l+"",
+			" \\lnot "+p.l+"",
 			!p.v,
 			false,
 			false,
@@ -237,21 +238,17 @@ for(var l in ctx.logicalElements) {
 
 masks = masks.reverse();
 
-process.stdout.write("<!DOCTYPE html>\n");
-process.stdout.write("<h1>Truth table for "+last+"</h1>");
+process.stdout.write("Truth table for $"+last+"$ \\newline\n");
+process.stdout.write("\\newcolumntype{C}{>{\\begin{math}}c<{\\end{math}}}%\n");
 
-process.stdout.write("<style>");
-	process.stdout.write("*{margin:0; padding:0;}");
-	process.stdout.write("body{font-family:\"Heveltica Neue\", sans-serif; padding:20px;}");
-	process.stdout.write("h1{margin:10px 0px;font-weight:normal;}");
-	process.stdout.write("table{text-align:center;border-collapse:collapse;}");
-	process.stdout.write("tr:nth-child(odd){background:#eee}");
-	process.stdout.write("td,th{padding:2px 5px;border:1px solid #ccc;}");
-process.stdout.write("</style>");
+String.prototype.repeat = function( num )
+{
+    return new Array( num + 1 ).join( this );
+}
 
-process.stdout.write("<table>");
+process.stdout.write("\\begin{tabular}" + "{" +"C".repeat(Math.pow(2, primitivesCount)+primitivesCount)+"}"+"\n");
 
-process.stdout.write("<tr><th>"+ _p.concat([" "], _np).join("</th><th>") +"</th></tr>");
+process.stdout.write(_p.concat([" "], _np).join(" & ") +"\\\\\n");
 
 for(var i = 0; i < Math.pow(2, primitivesCount); i++) {
 	var primitives = [];
@@ -275,7 +272,7 @@ for(var i = 0; i < Math.pow(2, primitivesCount); i++) {
 			(e.p ? _p : _np).push(e.v ? 1 : 0);
 	}
 
-	process.stdout.write("<tr><td>"+ _p.concat([" "], _np).join("</td><td>") +"</td></tr>");
+	process.stdout.write(_p.concat([" "], _np).join(" & ") +"\\\\\n");
 }
 
-process.stdout.write("</table>");
+process.stdout.write("\\end{tabular}");
