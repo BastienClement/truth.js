@@ -250,6 +250,8 @@ process.stdout.write("\\begin{tabular}" + "{" +"C".repeat(Math.pow(2, primitives
 
 process.stdout.write(_p.concat([" "], _np).join(" & ") +"\\\\\n");
 
+process.stdout.write("\\hline\n");
+
 for(var i = 0; i < Math.pow(2, primitivesCount); i++) {
 	var primitives = [];
 	for(var l in primitivesMask) {
