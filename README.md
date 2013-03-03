@@ -10,3 +10,5 @@ Example :
 <pre>
 ./truth.js "(p v ( q xor not r)) xor not (( p -> r) ->q)" > example.tex
 </pre>
+
+Make sure you include the array package and that you don't redefine the column type twice.
