@@ -2,7 +2,7 @@
 //
 //	Truth table generator
 //
-//	Copyright (C) 2011 Bastien Clément
+//	Copyright (C) 2011-2013 Bastien Clément
 //
 //	Permission is hereby granted, free of charge, to any person obtaining
 //	a copy of this software and associated documentation files (the
@@ -114,8 +114,54 @@ var grammar = {
 }
 
 var parser = new Parser(grammar);
-
 var expr = parser.parse(expr_src);
+
+// OUTPUT GENERATORS
+
+var generators = {
+	html: {
+		symbols: {
+			"obr":  "(",
+			"cbr":  ")",
+			"and":  " ∧ ",
+			"join": " , ",
+			"or":   " ∨ ",
+			"xor":  " ⊕ ",
+			"impl": " → ",
+			"iff":  " ≡ ",
+			"notb":  "¬",
+			"nota":  ""
+		},
+
+		begin: function(expr, prims, nprims) {
+			process.stdout.write("<!DOCTYPE html>\n");
+			process.stdout.write("<h1>Truth table for "+expr+"</h1>");
+
+			process.stdout.write("<style>");
+				process.stdout.write("*{margin:0; padding:0;}");
+				process.stdout.write("body{font-family:\"Heveltica Neue\", sans-serif; padding:20px;}");
+				process.stdout.write("h1{margin:10px 0px;font-weight:normal;}");
+				process.stdout.write("table{text-align:center;border-collapse:collapse;}");
+				process.stdout.write("tr:nth-child(odd){background:#eee}");
+				process.stdout.write("td,th{padding:2px 5px;border:1px solid #ccc;}");
+			process.stdout.write("</style>");
+
+			process.stdout.write("<table>");
+
+			process.stdout.write("<tr><th>"+ prims.concat([" "], nprims).join("</th><th>") +"</th></tr>");
+		},
+
+		line: function(prims, nprims) {
+			process.stdout.write("<tr><td>"+ prims.concat([" "], nprims).join("</td><td>") +"</td></tr>");
+		},
+
+		end: function() {
+			process.stdout.write("</table>");
+		}
+	}
+};
+
+var gen = generators[process.argv[3]] || generators.html;
 
 // EVALUATE
 
@@ -128,7 +174,7 @@ var api = {
 	LogicalElement: function(l, v, primitive, join, simple) {
 		if(ctx.logicalElements[l]) return ctx.logicalElements[l];
 
-		this.l = (primitive || simple) ? l : "("+l+")";
+		this.l = (primitive || simple) ? l : gen.symbols["obr"] + l + gen.symbols["cbr"];
 		this.v = (primitive && ctx.primitives[l]) ? ctx.primitives[l] : v;
 		this.p = !!primitive;
 		this.j = !!join;
@@ -145,7 +191,7 @@ var api = {
 		q = api.toLogicalElement(q);
 
 		return new api.LogicalElement(
-			p.l+" "+(join ? "," : "∧")+" "+q.l,
+			p.l + (join ? gen.symbols["join"] : gen.symbols["and"]) + q.l,
 			p.v && q.v,
 			false,
 			join
@@ -161,7 +207,7 @@ var api = {
 		q = api.toLogicalElement(q);
 
 		return new api.LogicalElement(
-			p.l+" ∨ "+q.l,
+			p.l + gen.symbols["or"] + q.l,
 			p.v || q.v
 		);
 	},
@@ -171,7 +217,7 @@ var api = {
 		q = api.toLogicalElement(q);
 
 		return new api.LogicalElement(
-			p.l+" ⊕ "+q.l,
+			p.l + gen.symbols["xor"] + q.l,
 			(p.v || q.v) && !(p.v && q.v)
 		);
 	},
@@ -181,7 +227,7 @@ var api = {
 		q = api.toLogicalElement(q);
 
 		return new api.LogicalElement(
-			p.l+" → "+q.l,
+			p.l + gen.symbols["impl"] + q.l,
 			!p.v || (p.v && q.v)
 		);
 	},
@@ -191,7 +237,7 @@ var api = {
 		q = api.toLogicalElement(q);
 
 		return new api.LogicalElement(
-			p.l+" ≡ "+q.l,
+			p.l + gen.symbols["iff"] + q.l,
 			!(p.v || q.v) || (p.v && q.v)
 		);
 	},
@@ -200,7 +246,7 @@ var api = {
 		p = api.toLogicalElement(p);
 
 		return new api.LogicalElement(
-			"¬"+p.l+"",
+			gen.symbols["notb"] + p.l + gen.symbols["nota"],
 			!p.v,
 			false,
 			false,
@@ -237,21 +283,7 @@ for(var l in ctx.logicalElements) {
 
 masks = masks.reverse();
 
-process.stdout.write("<!DOCTYPE html>\n");
-process.stdout.write("<h1>Truth table for "+last+"</h1>");
-
-process.stdout.write("<style>");
-	process.stdout.write("*{margin:0; padding:0;}");
-	process.stdout.write("body{font-family:\"Heveltica Neue\", sans-serif; padding:20px;}");
-	process.stdout.write("h1{margin:10px 0px;font-weight:normal;}");
-	process.stdout.write("table{text-align:center;border-collapse:collapse;}");
-	process.stdout.write("tr:nth-child(odd){background:#eee}");
-	process.stdout.write("td,th{padding:2px 5px;border:1px solid #ccc;}");
-process.stdout.write("</style>");
-
-process.stdout.write("<table>");
-
-process.stdout.write("<tr><th>"+ _p.concat([" "], _np).join("</th><th>") +"</th></tr>");
+gen.begin(last, _p, _np);
 
 for(var i = 0; i < Math.pow(2, primitivesCount); i++) {
 	var primitives = [];
@@ -275,7 +307,7 @@ for(var i = 0; i < Math.pow(2, primitivesCount); i++) {
 			(e.p ? _p : _np).push(e.v ? 1 : 0);
 	}
 
-	process.stdout.write("<tr><td>"+ _p.concat([" "], _np).join("</td><td>") +"</td></tr>");
+	gen.line(_p, _np);
 }
 
-process.stdout.write("</table>");
+gen.end();
