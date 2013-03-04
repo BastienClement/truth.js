@@ -3,6 +3,7 @@
 //	Truth table generator
 //
 //	Copyright (C) 2011-2013 Bastien Clément
+//	LaTeX generator by Frederic Jacobs, distributed with the same license.
 //
 //	Permission is hereby granted, free of charge, to any person obtaining
 //	a copy of this software and associated documentation files (the
@@ -157,6 +158,45 @@ var generators = {
 
 		end: function() {
 			process.stdout.write("</table>");
+		}
+	},
+	
+	latex: {
+		symbols: {
+			"obr":  "(",
+			"cbr":  ")",
+			"and":  " \\wedge ",
+			"join": " , ",
+			"or":   " \\lor ",
+			"xor":  " \\oplus ",
+			"impl": " \\to ",
+			"iff":  " \\leftrightarrow ",
+			"notb":  " \\lnot ",
+			"nota":  ""
+		},
+
+		begin: function(expr, prims, nprims) {
+			process.stdout.write("Truth table for $"+last+"$ \\newline\n");
+			process.stdout.write("\\newcolumntype{C}{>{\\begin{math}}c<{\\end{math}}}%\n");
+
+			String.prototype.repeat = function( num )
+			{
+				return new Array( num + 1 ).join( this );
+			}
+
+			process.stdout.write("\\begin{tabular}" + "{" +"C".repeat(Math.pow(2, primitivesCount)+primitivesCount)+"}"+"\n");
+
+			process.stdout.write(prims.concat([" "], nprims).join(" & ") +"\\\\\n");
+
+			process.stdout.write("\\hline\n");
+		},
+
+		line: function(prims, nprims) {
+			process.stdout.write(prims.concat([" "], nprims).join(" & ") +"\\\\\n");
+		},
+
+		end: function() {
+			process.stdout.write("\\end{tabular}");
 		}
 	}
 };

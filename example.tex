@@ -1,0 +1,14 @@
+Truth table for $(p \lor (q \oplus  \lnot r)) \oplus  \lnot ((p \to r) \to q)$ \newline
+\newcolumntype{C}{>{\begin{math}}c<{\end{math}}}%
+\begin{tabular}{CCCCCCCCCCC}
+r & q & p &   &  \lnot r & q \oplus  \lnot r & p \lor (q \oplus  \lnot r) & p \to r & (p \to r) \to q &  \lnot ((p \to r) \to q) & (p \lor (q \oplus  \lnot r)) \oplus  \lnot ((p \to r) \to q)\\
+\hline
+0 & 0 & 0 &   & 1 & 1 & 1 & 1 & 0 & 1 & 0\\
+0 & 0 & 1 &   & 1 & 1 & 1 & 0 & 1 & 0 & 1\\
+0 & 1 & 0 &   & 1 & 0 & 0 & 1 & 1 & 0 & 0\\
+0 & 1 & 1 &   & 1 & 0 & 1 & 0 & 1 & 0 & 1\\
+1 & 0 & 0 &   & 0 & 0 & 0 & 1 & 0 & 1 & 1\\
+1 & 0 & 1 &   & 0 & 0 & 1 & 1 & 0 & 1 & 0\\
+1 & 1 & 0 &   & 0 & 1 & 1 & 1 & 1 & 0 & 1\\
+1 & 1 & 1 &   & 0 & 1 & 1 & 1 & 1 & 0 & 1\\
+\end{tabular}
